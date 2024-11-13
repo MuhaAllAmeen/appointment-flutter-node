@@ -10,9 +10,15 @@ import {
     deleteDoc,
   } from 'firebase/firestore';
 import express from 'express';
+import axios from 'axios';
+import qs from "qs"
+import dotenv from "dotenv"
+import fs from "fs"
+import https from "https"
 
 const app = express();
 app.use(express.json())
+dotenv.config()
 
 
 const firebaseConfig = {
@@ -23,6 +29,8 @@ const firebaseConfig = {
     messagingSenderId: "944857341769",
     appId: "1:944857341769:web:9f3c52fbeacb5da1f58498"
   };
+
+
 
 const firebase = initializeApp(firebaseConfig);
 const db = getFirestore(firebase);
@@ -70,7 +78,37 @@ app.delete('/booking/delete/:id',async (req, res) => {
   }
 })
 
-  app.listen(3000, () => {
-    console.log('Server started on port 3000');
-  });
+app.get('/api/sessions/oauth/google', async (req,res)=>{
+  const code = req.query.code 
+  const url = "https://oauth2.googleapis.com/token"
+  const values = {
+    code, client_id:process.env.GOOGLE_CLIENTID,
+    client_secret: process.env.GOOGLE_CLIENTSECRET,
+    redirect_uri: process.env.GOOGLE_OAUTH_REDIRECT_URL,
+    grant_type: "authorization_code",
+  }
+  console.log(values)
+
+  try{
+    const response = await axios.post(url,qs.stringify(values),
+  {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }
+  })
+  console.log(response.data)
+  res.status(200).send(response.data)
+  }catch(e){
+    console.log("error",e)
+  }
+})
+
+app.get('/',(req,res)=>{
+  return res.send("hello")
+})
+
+app.listen(3000, () => {
+  console.log('Server started on port 3000');
+});
+
   

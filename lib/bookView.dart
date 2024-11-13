@@ -79,96 +79,94 @@ class _BookViewState extends State<BookView> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-          child: Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Book an Appointment", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-              const SizedBox(height: 20,),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text("Book an Appointment", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+            const SizedBox(height: 20,),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Full Name"),
+                TextField(
+                  controller: nameController,  
+                  
+                  ),
+                  
+                
+              ],
+            ),
+             Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Phone"),
+                  TextField(
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
+                  )
+                  
+                ],
+              
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Full Name"),
-                  TextField(
-                    controller: nameController,  
-                    
-                    ),
-                    
-                  
+                  const Text("Service"),
+                  DropdownMenu(
+                    controller: serviceController,
+                    initialSelection: services[0],
+                    dropdownMenuEntries: services.map((service) => 
+                    DropdownMenuEntry<String>(value: service, label: service)).toList())
                 ],
               ),
-               Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Phone"),
-                    TextField(
-                      controller: phoneController,
-                      keyboardType: TextInputType.phone,
-                    )
-                    
-                  ],
-                
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Service"),
-                    DropdownMenu(
-                      controller: serviceController,
-                      initialSelection: services[0],
-                      dropdownMenuEntries: services.map((service) => 
-                      DropdownMenuEntry<String>(value: service, label: service)).toList())
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => _selectDate(context),
-                      child: const Text('Select date'),
-                    ),
-                    Text("Date Selected: ${selectedDate.day.toString()}/${selectedDate.month.toString()}")
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => _selectTime(context),
-                      child: const Text('Select Time'),
-                    ),
-                    Text("Time Selected: ${selectedTime.hour.toString()}:${selectedTime.minute.toString()}")
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Your Location"),
-                    TextField(
-                      controller: addressController,
-                    )
-                  ],
-                ),
-                TextButton(
-                onPressed: () {
-                  // Booking logic here
-                  onBookPressed();
-                },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.resolveWith((states) {
-                      // If the button is pressed, return green, otherwise blue
-                      if (states.contains(WidgetState.pressed)) {
-                        return Colors.green;
-                      }
-                      return Colors.blue[200];
-                    }),
-                ),
-                child: const Text("Book"),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _selectDate(context),
+                    child: const Text('Select date'),
+                  ),
+                  Text("Date Selected: ${selectedDate.day.toString()}/${selectedDate.month.toString()}")
+                ],
               ),
-            ],
-                      ),
-        )
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _selectTime(context),
+                    child: const Text('Select Time'),
+                  ),
+                  Text("Time Selected: ${selectedTime.hour.toString()}:${selectedTime.minute.toString()}")
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Your Location"),
+                  TextField(
+                    controller: addressController,
+                  )
+                ],
+              ),
+              TextButton(
+              onPressed: () {
+                // Booking logic here
+                onBookPressed();
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.resolveWith((states) {
+                    // If the button is pressed, return green, otherwise blue
+                    if (states.contains(WidgetState.pressed)) {
+                      return Colors.green;
+                    }
+                    return Colors.blue[200];
+                  }),
+              ),
+              child: const Text("Book"),
+            ),
+          ],
+                    )
       ),
     )
     );
