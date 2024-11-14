@@ -45,3 +45,5 @@ app.*.map.json
 /server/node_modules/
 server/.env
 lib/.env
+lib/certi.pem
+lib/certificate.pem

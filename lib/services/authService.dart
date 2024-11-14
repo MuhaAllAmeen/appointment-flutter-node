@@ -83,7 +83,7 @@ class AuthService {
   Future<bool> _handleAuthResult(result) async {
     final bool isValidResult =
         result != null && result.accessToken != null && result.idToken != null;
-    print("result $result");
+    print("result ${isValidResult}");
     if (isValidResult) {
       // Storing refresh token to renew login on app restart
       if (result.refreshToken != null) {

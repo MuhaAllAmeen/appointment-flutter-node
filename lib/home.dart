@@ -1,7 +1,9 @@
 import 'package:appointment/appointmentsView.dart';
 import 'package:appointment/bookView.dart';
 import 'package:appointment/pages/auth/registerView.dart';
+import 'package:appointment/services/apiService.dart';
 import 'package:appointment/services/authService.dart';
+import 'package:appointment/services/certPinnedHTTPS.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -19,12 +21,15 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
+    
     initAuth();
     pageController = PageController();
     super.initState();
   }
 
   void initAuth() async{
+    final response = await Apiservice().fetchData("https://appointment.crabdance.com");
+    print(response.body);
     bool isAuthenticated = await AuthService().initAuth();
     setState(() {
       widget.isLoggedIn = isAuthenticated;
