@@ -4,6 +4,8 @@ A Booking app created using flutter and node js.
 The backend server is hosted using an aws ec2 instance and the requests are sent through the domain <b>https://appointment.crabdance.com</b>
 Excuse the domain (its the only free one I could get)
 Firebase Database is used to store data.
+![image](https://github.com/user-attachments/assets/60c5551d-95f4-4f44-a5a2-38c95bb8a795)
+
 
 Working of the app(click on the link if video is not displayed):
 https://github.com/user-attachments/assets/17195e54-9b9e-4945-b5a3-2e86d032bceb
