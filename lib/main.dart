@@ -5,14 +5,14 @@ import 'package:appointment/services/secureStorageService.dart';
 import 'package:appointment/utils/saveAPIkeys.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
 void main() async{
   //initalize all the singletons
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp();
-  await dotenv.load(fileName: "lib/.env");
+  // await dotenv.load(fileName: "lib/.env");
   SecureStorage().init();
   await getCertFromServer();
   await BaseHttpClient().init();

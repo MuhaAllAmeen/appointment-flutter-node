@@ -6,7 +6,7 @@ import 'package:appointment/services/localAuthService.dart';
 import 'package:appointment/services/secureStorageService.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -137,7 +137,7 @@ class AuthService {
       if (googleAccessToken != null) {
         await SecureStorage().writeAccessToken(googleAccessToken);
       }
-      
+
       return true;
     } else {
       return false;
