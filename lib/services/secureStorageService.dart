@@ -51,6 +51,11 @@ class SecureStorage{
       return IOSClientId;
     }
 
+    Future<String?> getCert() async{
+      final cert = await _secureStorage.read(key: "cert");
+      return cert;
+    }
+
 
     Future<void> writeAccessToken(String token) async{
       await _secureStorage.write(key: "access_token",value: token);
@@ -83,6 +88,10 @@ class SecureStorage{
 
     Future<void> writeIOSClientId(String iosClientId) async {
         await _secureStorage.write(key: "ios_client_id", value: iosClientId);
+    }
+
+    Future<void> writeCert(String cert) async{
+      await _secureStorage.write(key: "cert", value: cert);
     }
 
     Future<void> clearTokens() async{

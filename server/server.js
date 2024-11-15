@@ -199,13 +199,18 @@ app.get('/api/keys',(req,res)=>{
   const googleIssuer = process.env.GOOGLE_ISSUER
   const redirectURI = process.env.GOOGLE_REDIRECT_URI
   console.log(googleClientId,IOSgoogleClientId,googleIssuer,redirectURI);
-  const cert= fs.readFileSync('/etc/ssl/nodecerts/cert.pem')
 
   res.status(200).json({
     googleClientId,
     IOSgoogleClientId,
     googleIssuer,
     redirectURI,
+  })
+})
+
+app.get("/cert",async (req,res)=>{
+  const cert= fs.readFileSync('/etc/ssl/nodecerts/cert.pem')
+  res.status(200).json({
     cert
   })
 })

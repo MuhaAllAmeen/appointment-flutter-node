@@ -1,14 +1,21 @@
 
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:appointment/services/secureStorageService.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 
 Future<SecurityContext> get globalContext async {
-  final sslCert = await rootBundle.load('lib/certi.pem');
+  final sslCertfromlib = await rootBundle.load('lib/certi.pem');
+  final base64Cert = await SecureStorage().getCert();
+  Int8List sslCert = Int8List.fromList(base64Decode(base64Cert!));
+  print(sslCert);
+  print("ss ${sslCertfromlib.buffer.asInt8List()}");
   SecurityContext securityContext = SecurityContext(withTrustedRoots: false);
-  securityContext.setTrustedCertificatesBytes(sslCert.buffer.asInt8List());
+  securityContext.setTrustedCertificatesBytes(sslCert);
   return securityContext;
 }
 

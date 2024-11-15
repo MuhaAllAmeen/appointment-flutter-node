@@ -13,6 +13,7 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp();
   await dotenv.load(fileName: "lib/.env");
+  await getCertFromServer();
   await BaseHttpClient().init();
   SecureStorage().init();
   LocalAuthService().init();
