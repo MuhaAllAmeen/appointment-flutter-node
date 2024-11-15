@@ -7,7 +7,9 @@ Firebase Database is used to store data.
 ![image](https://github.com/user-attachments/assets/60c5551d-95f4-4f44-a5a2-38c95bb8a795)
 ![image](https://github.com/user-attachments/assets/9f35cb60-20df-47c0-8eec-832af93a92a5)
 
-
+Please note that this app might not work for the IOS for the moment as I dont have an apple pc that can emulate an IPhone to test.
+I am only saying this because I have and can not test google oauth for IOS. But leaving the login out of the way, the rest of the app should perfectly for IOS and Android.
+If there are any server issues then please raise an issue as I am running an aws machine and it can shut down if it goes above my budget since it is a pais service.
 
 Working of the app(click on the link if video is not displayed):
 https://github.com/user-attachments/assets/17195e54-9b9e-4945-b5a3-2e86d032bceb
