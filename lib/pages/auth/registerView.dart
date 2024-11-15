@@ -16,7 +16,7 @@ class _RegisterviewState extends State<Registerview> {
   Future<void> signIn() async {
     final authSuccess = await AuthService.instance.login();
     // final authSuccess = await AuthService.instance.loginUsingGooglePackage();
-    
+    print("authSuccess $authSuccess");
     if (authSuccess){
 
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder:(context) => Home(isLoggedIn: authSuccess,),), (Route)=>false);

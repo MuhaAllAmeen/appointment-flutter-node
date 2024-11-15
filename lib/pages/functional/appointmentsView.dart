@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:appointment/models/bookingModel.dart';
-import 'package:appointment/services/service.dart';
+import 'package:appointment/services/firestoreService.dart';
+import 'package:appointment/utils/genericDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
@@ -18,13 +19,18 @@ class _AppointmentsviewState extends State<Appointmentsview> {
   void onDeletePressed(String? id) async {
     print("ss $id");
     if (id!=null){
-      Response response = await deleteAppointment(id);
-      if (response.statusCode == 200){
-        Response response = await getAllAppointments();
-        setState(() {
-          appointments = jsonDecode(response.body);
-        });
+      try{
+        Response response = await deleteAppointment(id);
+        if (response.statusCode == 200){
+          Response response = await getAllAppointments();
+          setState(() {
+            appointments = jsonDecode(response.body);
+          });
+        }
+      }catch(e){
+        await showGenericDialog(context: context, title: "Error", content: "There was something wrong", optionBuilder:() => {"OK":null},);
       }
+      
     }
     
   }
@@ -33,7 +39,9 @@ class _AppointmentsviewState extends State<Appointmentsview> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blue[200],
         title: const Text("Appointments"),
+        toolbarHeight: 40,
       ),
       body: FutureBuilder(future: getAllAppointments(), 
         builder:(context, snapshot) {
@@ -48,6 +56,9 @@ class _AppointmentsviewState extends State<Appointmentsview> {
               return const Center(child: Text("Active"),);
             
             case ConnectionState.done:
+              if (snapshot.data == null){
+                return const Center(child: Text("No Bookings",style: TextStyle(fontSize: 40),),);
+              }
               appointments = jsonDecode(snapshot.data!.body) ;
               return SingleChildScrollView(
                 child: Padding(

@@ -1,8 +1,11 @@
 
+import 'dart:convert';
+
+import 'package:appointment/services/firestoreService.dart';
+import 'package:appointment/services/localAuthService.dart';
+import 'package:appointment/services/tokens.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_appauth/flutter_appauth.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,18 +18,29 @@ class AuthService {
   AuthService._();
 
   final FlutterAppAuth _appAuth = const FlutterAppAuth();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   Future<bool> initAuth() async {
-    final storedRefreshToken =
-        await _secureStorage.read(key: "refresh_token");
+    final storedRefreshToken = await SecureStorage().getRefreshToken();
     final TokenResponse? result;
     print("refresh $storedRefreshToken");
     if (storedRefreshToken == null) {
       return false;
     }
 
-    try {
+    final storedExpiryTime = await SecureStorage().getExpiryTime() ?? 0;
+    final currentTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    if (currentTimestamp>storedExpiryTime){
+      await logout();
+      return false;
+      //this would give us fresh set of tokens even the refresh token. Google tokens are only supposed to last a day
+    }
+
+    final storedAccessToken = await SecureStorage().getAccessToken();
+    final storedIdToken = await SecureStorage().getIdToken();
+    
+    if (storedAccessToken==null || storedIdToken==null)
+    {
+      try {
       // Obtaining token response from refresh token
       result = await _appAuth.token(
           TokenRequest(
@@ -36,14 +50,19 @@ class AuthService {
             refreshToken: storedRefreshToken,
           ),
         );
-        print("result $result");
+        print("result ${result.toString()}");
 
-      final bool setResult = await _handleAuthResult(result);
-      return setResult;
-    } catch (e, s) {
-      print('error on Refresh Token: $e - stack: $s');
-      // logOut() possibly
-      return false;
+        final bool setResult = await _handleAuthResult(result);
+        return setResult;
+      } catch (e, s) {
+        print('error on Refresh Token: $e - stack: $s');
+        // logOut() possibly
+        return false;
+      }
+
+    }else{
+      final authenticatedLocally = await LocalAuthService().authenticateLocally();
+      return authenticatedLocally;
     }
   }
 
@@ -65,7 +84,17 @@ class AuthService {
       );
       print(result?.accessToken);
       // Taking the obtained result and processing it
-      return await _handleAuthResult(result);
+      final handled = await _handleAuthResult(result);
+      if (handled){
+        final idToken = await SecureStorage().getIdToken();
+        if(idToken!=null){
+          final userSavedResponse = await addUserUsingIdToken(idToken);
+          final userDetails = jsonDecode(userSavedResponse.body);
+          print(userDetails);
+          SecureStorage().writeExpiryTime(userDetails["expiryTime"]);
+        } 
+      }
+      return handled;
     } on PlatformException {
       print("User has cancelled or no internet!");
       return false;
@@ -76,30 +105,36 @@ class AuthService {
   }
 
   Future<bool> logout() async {
-    await _secureStorage.delete(key: "refresh_token");
+    await SecureStorage().clearTokens();
     return true;
   }
 
   Future<bool> _handleAuthResult(result) async {
     final bool isValidResult =
         result != null && result.accessToken != null && result.idToken != null;
-    print("result ${isValidResult}");
+    print("result ${result.idToken}");
+    String tt = result.idToken;
+    while (tt.length > 0) {
+      
+    int initLength = (tt.length >= 500 ? 500 : tt.length);
+    print(tt.substring(0, initLength));
+    int endLength = tt.length;
+    tt = tt.substring(initLength, endLength);
+}
     if (isValidResult) {
       // Storing refresh token to renew login on app restart
       if (result.refreshToken != null) {
-        await _secureStorage.write(
-          key: "refresh_token",
-          value: result.refreshToken,
-        );
+        await SecureStorage().writeRefreshToken(result.refreshToken);
+      }
+
+      if (result.idToken!=null){
+        await SecureStorage().writeIdToken(result.idToken);
       }
 
       final String googleAccessToken = result.accessToken;
       print("access $googleAccessToken");
       if (googleAccessToken != null) {
-        await _secureStorage.write(
-          key: "access_token",
-          value: result.refreshToken,
-        );
+        await SecureStorage().writeAccessToken(googleAccessToken);
       }
 
       // Send request to backend with access token
@@ -133,6 +168,12 @@ class AuthService {
     AuthCredential credential = GoogleAuthProvider.credential(accessToken: googleAuth?.accessToken, idToken: googleAuth?.idToken);
     // UserCredential user = await FirebaseAuth.instance.signInWithCredential(credential);
     final result = TokenResponse(googleAuth?.accessToken, null,null, googleAuth?.idToken,null,null,null);
+    if (googleAuth!=null && googleAuth.accessToken!=null && googleAuth.idToken!=null){
+      await SecureStorage().writeAccessToken(googleAuth.accessToken!);
+      await SecureStorage().writeIdToken(googleAuth.idToken!);
+      final userSavedResponse = await addUserUsingIdToken(googleAuth.idToken!);
+      return true;
+    }
     return await _handleAuthResult(result);
     
   }

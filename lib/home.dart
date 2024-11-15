@@ -1,9 +1,8 @@
-import 'package:appointment/appointmentsView.dart';
-import 'package:appointment/bookView.dart';
+import 'package:appointment/pages/functional/appointmentsView.dart';
+import 'package:appointment/pages/functional/bookView.dart';
 import 'package:appointment/pages/auth/registerView.dart';
 import 'package:appointment/services/apiService.dart';
 import 'package:appointment/services/authService.dart';
-import 'package:appointment/services/certPinnedHTTPS.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -17,22 +16,26 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _page = 0;
+  bool isLoading = false;
   late PageController pageController;
 
   @override
   void initState() {
     
-    initAuth();
+    if(!widget.isLoggedIn) initAuth();
     pageController = PageController();
     super.initState();
   }
 
   void initAuth() async{
-    final response = await Apiservice().fetchData("https://appointment.crabdance.com");
-    print(response.body);
+    setState(() {
+      isLoading = true;
+    });
     bool isAuthenticated = await AuthService().initAuth();
+    print("home isauth $isAuthenticated");
     setState(() {
       widget.isLoggedIn = isAuthenticated;
+      isLoading = false;
     });
   }
   @override
@@ -49,7 +52,17 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       
-      body: widget.isLoggedIn ? PageView(
+      body:isLoading ? 
+        const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              Text("Please Wait")
+            ],
+          ),
+        )
+      : widget.isLoggedIn ? PageView(
         controller: pageController,
         // physics: const NeverScrollableScrollPhysics(),
         children: const [BookView(),Appointmentsview()],
