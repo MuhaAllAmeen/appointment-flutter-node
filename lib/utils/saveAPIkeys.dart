@@ -22,12 +22,16 @@ Future<void> getAPIKeysandSave() async{
 }
 
 Future<void> getCertFromServer() async {
+  //only if the app does not have the certificate so that it does not fetch everytime
   try{
-    //get the ssl certificate
-    final response = await http.get(Uri.parse("https://appointment.crabdance.com/cert"));
-    final cert = jsonDecode(response.body);
-    List<int> certData = List<int>.from(cert["cert"]["data"]);
-    await SecureStorage().writeCert(base64Encode(certData));
+    if (await SecureStorage().getCert() == null){
+        //get the ssl certificate
+      final response = await http.get(Uri.parse("https://appointment.crabdance.com/cert"));
+      final cert = jsonDecode(response.body);
+      List<int> certData = List<int>.from(cert["cert"]["data"]);
+      await SecureStorage().writeCert(base64Encode(certData));
+    }
+    
   }catch(e){
     print(e);
   }

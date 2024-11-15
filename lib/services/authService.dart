@@ -42,7 +42,7 @@ class AuthService {
     final storedIdToken = await SecureStorage().getIdToken();
     //if there is no access token or id token then retrieve them from google oauth
     //or else biometrics can be used for a simple login
-    if (storedAccessToken==null || storedIdToken==null)
+    if (storedAccessToken==null || storedIdToken==null || ! await LocalAuthService().canLocalAuthenticate())
     {
       try {
       // Obtaining token response from refresh token

@@ -23,12 +23,13 @@ class LocalAuthService{
       final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
       final bool canAuthenticate =
         canAuthenticateWithBiometrics || await auth.isDeviceSupported();
-      return canAuthenticate;
+      final List<BiometricType> biometrics = await auth.getAvailableBiometrics();
+      return canAuthenticate && biometrics.isNotEmpty;
     }
 
     Future<bool> authenticateLocally() async {
-      print(await auth.getAvailableBiometrics());
       final bool canAuthenticateLocally = await canLocalAuthenticate();
+      print("${await auth.getAvailableBiometrics() },$canAuthenticateLocally");
       if (canAuthenticateLocally) {
         //if it can then authenticate 
         try {
