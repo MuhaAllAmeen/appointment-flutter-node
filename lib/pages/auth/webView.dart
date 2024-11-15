@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+//dont mind this code, this was only an experiment
 
 class WebView extends StatefulWidget {
   const WebView({super.key});

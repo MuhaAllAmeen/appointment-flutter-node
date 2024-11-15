@@ -22,6 +22,7 @@ class _AppointmentsviewState extends State<Appointmentsview> {
       try{
         Response response = await deleteAppointment(id);
         if (response.statusCode == 200){
+          // reload appointments after deleting
           Response response = await getAllAppointments();
           setState(() {
             appointments = jsonDecode(response.body);
@@ -29,10 +30,8 @@ class _AppointmentsviewState extends State<Appointmentsview> {
         }
       }catch(e){
         await showGenericDialog(context: context, title: "Error", content: "There was something wrong", optionBuilder:() => {"OK":null},);
-      }
-      
-    }
-    
+      }   
+    }   
   }
 
   @override
@@ -57,6 +56,7 @@ class _AppointmentsviewState extends State<Appointmentsview> {
             
             case ConnectionState.done:
               if (snapshot.data == null){
+                //if there are no bookings
                 return const Center(child: Text("No Bookings",style: TextStyle(fontSize: 40),),);
               }
               appointments = jsonDecode(snapshot.data!.body) ;
@@ -67,6 +67,7 @@ class _AppointmentsviewState extends State<Appointmentsview> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: appointments.map((appointment){
                       BookingModel booking = BookingModel.fromMap(appointment);
+                      //get each appointment and parse it into booking model and display them
                       return Column(
                         children: [
                           Container(
@@ -122,7 +123,7 @@ class _AppointmentsviewState extends State<Appointmentsview> {
                               ),
                             ),
                           ),
-                          TextButton(onPressed: () => onDeletePressed(appointment['id']), child: Text("Delete")),
+                          TextButton(onPressed: () => onDeletePressed(appointment['id']), child:const Text("Delete")),
                           const SizedBox(height: 10,)
                         ],
                       );

@@ -6,7 +6,7 @@ class SecureStorage{
     SecureStorage._();
 
     late final FlutterSecureStorage _secureStorage;
-
+    //retrieve and write all the tokens using flutter_secure_storage
     void init(){
       _secureStorage = const FlutterSecureStorage();
     }
@@ -31,6 +31,27 @@ class SecureStorage{
       return int.parse(time ?? "0");
     }
 
+    Future<String?> getAndroidGoogleClientId() async{
+      final clientId = await _secureStorage.read(key: "google_client_id");
+      return clientId;
+    }
+
+    Future<String?> getGooglRedirectUri() async{
+      final redirectUri = await _secureStorage.read(key: "redirect_uri");
+      return redirectUri;
+    }
+
+    Future<String?> getGoogleIssuer() async{
+      final googleIssuer = await _secureStorage.read(key: "google_issuer");
+      return googleIssuer;
+    }
+
+    Future<String?> getIOSClientId() async{
+      final IOSClientId = await _secureStorage.read(key: "ios_client_id");
+      return IOSClientId;
+    }
+
+
     Future<void> writeAccessToken(String token) async{
       await _secureStorage.write(key: "access_token",value: token);
       
@@ -46,6 +67,22 @@ class SecureStorage{
 
     Future<void> writeExpiryTime(int time) async{
       await _secureStorage.write(key: "expiry_time", value: time.toString());
+    }
+
+    Future<void> writeAndroidGoogleClientId(String clientId) async {
+    await _secureStorage.write(key: "google_client_id", value: clientId);
+    }
+
+    Future<void> writeGoogleRedirectUri(String redirectUri) async {
+        await _secureStorage.write(key: "redirect_uri", value: redirectUri);
+    }
+
+    Future<void> writeGoogleIssuer(String googleIssuer) async {
+        await _secureStorage.write(key: "google_issuer", value: googleIssuer);
+    }
+
+    Future<void> writeIOSClientId(String iosClientId) async {
+        await _secureStorage.write(key: "ios_client_id", value: iosClientId);
     }
 
     Future<void> clearTokens() async{

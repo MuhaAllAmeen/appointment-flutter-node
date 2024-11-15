@@ -1,14 +1,13 @@
 import 'package:appointment/services/certPinnedHTTPS.dart';
-import 'package:appointment/services/tokens.dart';
-import 'package:appointment/utils/genericDialog.dart';
-import 'package:flutter/material.dart';
+import 'package:appointment/services/secureStorageService.dart';
 import 'package:http/http.dart' as http;
 
 class Apiservice{
     final http.Client _client = BaseHttpClient().client;
-    final String baseurl = "https://appointment.crabdance.com";
-    // final String baseurl = "http://192.168.0.144:3000";
-    
+    // final String baseurl = "https://appointment.crabdance.com";
+    final String baseurl = "http://192.168.0.144:3000";
+
+    //all routes are verified using the google ouath id token since they contain the necessary info
     Future<http.Response> fetchData(String url) async {
       final idToken = await SecureStorage().getIdToken();
       try{

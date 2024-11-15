@@ -2,7 +2,6 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 
 class LocalAuthService{
-      // Private static instance
     static final LocalAuthService _instance = LocalAuthService._internal();
 
     // Private constructor
@@ -20,6 +19,7 @@ class LocalAuthService{
     }
 
     Future<bool> canLocalAuthenticate() async{
+      //check is device can use biometrics
       final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
       final bool canAuthenticate =
         canAuthenticateWithBiometrics || await auth.isDeviceSupported();
@@ -30,6 +30,7 @@ class LocalAuthService{
       print(await auth.getAvailableBiometrics());
       final bool canAuthenticateLocally = await canLocalAuthenticate();
       if (canAuthenticateLocally) {
+        //if it can then authenticate 
         try {
           final bool didAuthenticate = await auth.authenticate(
               localizedReason: 'Please authenticate to access the app');
@@ -41,12 +42,9 @@ class LocalAuthService{
         }
       } else {
         return false;
-        // Handle the case where local authentication is not possible
+        // Handle the case where local authentication is not possible and force user to login using google
       }
     }
           // ...
 }
     
-    // final List<BiometricType> availableBiometrics =
-    // await auth.getAvailableBiometrics();
-    // print("auth $canAuthenticate,$canAuthenticateWithBiometrics,$availableBiometrics");

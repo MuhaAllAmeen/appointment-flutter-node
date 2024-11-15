@@ -12,13 +12,20 @@ class Registerview extends StatefulWidget {
 }
 
 class _RegisterviewState extends State<Registerview> {
+  bool isLoading = false;
 
   Future<void> signIn() async {
+    setState(() {
+      isLoading = true;
+    });
     final authSuccess = await AuthService.instance.login();
     // final authSuccess = await AuthService.instance.loginUsingGooglePackage();
     print("authSuccess $authSuccess");
     if (authSuccess){
-
+      setState(() {
+        isLoading = false;
+      });
+      // if true, then go back to homepage with isLoggedIn as true so that we can go to the booking page
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder:(context) => Home(isLoggedIn: authSuccess,),), (Route)=>false);
     }
     
@@ -39,15 +46,16 @@ class _RegisterviewState extends State<Registerview> {
               const SizedBox(height: 30,),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: TextButton(onPressed:() {
+                child: TextButton(onPressed:isLoading ? null : () {
                   signIn();
                 }, 
                 style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.red[500])),
-                child: const Row(
+                child:  Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.g_mobiledata,size: 40,),
-                    Text("Use Google",style: TextStyle(color: Colors.white, fontSize: 20),)
+                    isLoading ? const CircularProgressIndicator(color: Colors.white,) : Container(),
+                    const Icon(Icons.g_mobiledata,size: 40,),
+                    const Text("Use Google",style: TextStyle(color: Colors.white, fontSize: 20),)
                   ],
                 ),
                 ),

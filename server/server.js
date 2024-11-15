@@ -34,11 +34,14 @@ const firebaseConfig = {
   };
 
 
+//initialize firebase and google client for id token verification
 const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
 const firebase = initializeApp(firebaseConfig);
 const db = getFirestore(firebase);
 
+//all routes are verified using google oauth id token
 app.post('/user/add', async (req, res) => {
+  console.log("/user/add");
 
   const authHeader = req.headers['authorization'];
   if (!authHeader) return res.status(401).send('Unauthorized');
@@ -71,7 +74,7 @@ app.post('/user/add', async (req, res) => {
         // Document already exists, handle accordingly (optional)
         console.log(`User with ID ${userId} already exists.`);
     }
-
+    //send user details to our app
     res.status(200).send(userDetails);
   } catch (error) {
     console.error('Error verifying ID token:', error);
@@ -81,34 +84,35 @@ app.post('/user/add', async (req, res) => {
 
 
 app.post('/booking/add', async (req, res) => {
+  console.log("/booking/add");
   const authHeader = req.headers['authorization'];
   if (!authHeader) return res.status(401).send('Unauthorized');
+  
   const idToken = authHeader.split(' ')[1];
   try {
     const payload = await verifyGoogleIdToken(idToken);
     if (payload!=null){
       console.log(req.body)
-      // const data = new Map(Object.entries(req.body));;
-      
+      //add the booking
       await addDoc(collection(db, 'booking'), req.body);
       res.status(200).send('booking created successfully');
     }else{
       res.status(400).send("payload is null")
     }
   } catch (error) {
+    console.log(error)
     res.status(400).send(error.message);
   }
   });
 
 app.get('/booking/all',async(req,res) =>{
+  console.log("/booking/all");
   const authHeader = req.headers['authorization'];
   if (!authHeader) return res.status(401).send('Unauthorized');
   const idToken = authHeader.split(' ')[1];
 
   try{
     const payload = await verifyGoogleIdToken(idToken);
-    console.log(payload)
-
     if (payload!=null){
       const bookings = await getDocs(collection(db, 'booking'));
       const bookingArray = [];
@@ -128,11 +132,13 @@ app.get('/booking/all',async(req,res) =>{
       res.status(400).send("payload is null")
     }
   } catch (error) {
+    console.log(error)
     res.status(400).send(error.message);
   }
 })
 
 app.delete('/booking/delete/:id',param("id").isLength(),async (req, res) => {
+  console.log("/booking/delete");
   const authHeader = req.headers['authorization'];
   if (!authHeader) return res.status(401).send('Unauthorized');
   const idToken = authHeader.split(' ')[1];
@@ -186,6 +192,23 @@ app.get('/',(req,res)=>{
   return res.send("hello")
 })
 
+app.get('/api/keys',(req,res)=>{
+  console.log('/api/keys/')
+  const googleClientId = process.env.GOOGLE_CLIENTID
+  const IOSgoogleClientId = process.env.IOS_CLIENT_ID
+  const googleIssuer = process.env.GOOGLE_ISSUER
+  const redirectURI = process.env.GOOGLE_REDIRECT_URI
+  const cert= fs.readFileSync('/etc/letsencrypt/live/appointment.crabdance.com/cert.pem')
+
+  res.status(200).json({
+    googleClientId,
+    IOSgoogleClientId,
+    googleIssuer,
+    redirectURI,
+    cert
+  })
+})
+
 app.listen(3000, () => {
   console.log('Server started on port 3000');
 });
@@ -199,9 +222,11 @@ async function verifyGoogleIdToken(idToken){
     });
 
     const payload = ticket.getPayload();
+    console.log(payload)
     return payload;
   }catch(error){
     console.log(`couldnt verify ${error}`)
+    // if current time has exceeded token expiry then payload should be null
     return null;
     // throw error;
   }

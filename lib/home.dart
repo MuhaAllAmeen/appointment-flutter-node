@@ -21,7 +21,7 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    
+    //dont check for authentication again after authenticating
     if(!widget.isLoggedIn) initAuth();
     pageController = PageController();
     super.initState();
@@ -31,6 +31,7 @@ class _HomeState extends State<Home> {
     setState(() {
       isLoading = true;
     });
+    //check if logged in
     bool isAuthenticated = await AuthService().initAuth();
     print("home isauth $isAuthenticated");
     setState(() {

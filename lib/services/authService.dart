@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:appointment/services/firestoreService.dart';
 import 'package:appointment/services/localAuthService.dart';
-import 'package:appointment/services/tokens.dart';
+import 'package:appointment/services/secureStorageService.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -23,13 +23,17 @@ class AuthService {
     final storedRefreshToken = await SecureStorage().getRefreshToken();
     final TokenResponse? result;
     print("refresh $storedRefreshToken");
+
     if (storedRefreshToken == null) {
+      //if no refresh token then user has to log in
       return false;
     }
 
     final storedExpiryTime = await SecureStorage().getExpiryTime() ?? 0;
     final currentTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     if (currentTimestamp>storedExpiryTime){
+      //google oauth idtoken has an expiry time which needs to be checked so that new id token can be retrieved.
+      //best to check this before every request to server
       await logout();
       return false;
       //this would give us fresh set of tokens even the refresh token. Google tokens are only supposed to last a day
@@ -37,16 +41,20 @@ class AuthService {
 
     final storedAccessToken = await SecureStorage().getAccessToken();
     final storedIdToken = await SecureStorage().getIdToken();
-    
+    //if there is no access token or id token then retrieve them from google oauth
+    //or else biometrics can be used for a simple login
     if (storedAccessToken==null || storedIdToken==null)
     {
       try {
       // Obtaining token response from refresh token
+      final client_id = await SecureStorage().getAndroidGoogleClientId() ?? "";
+      final redirect_uri = await SecureStorage().getGooglRedirectUri() ?? "";
+      final issuer = await SecureStorage().getGoogleIssuer() ?? "";
       result = await _appAuth.token(
           TokenRequest(
-            dotenv.get("CLIENT_ID"),
-            dotenv.get("GOOGLE_REDIRECT_URI"),
-            issuer: dotenv.get("GOOGLE_ISSUER"),
+            client_id,
+            redirect_uri,
+            issuer: issuer,
             refreshToken: storedRefreshToken,
           ),
         );
@@ -61,6 +69,7 @@ class AuthService {
       }
 
     }else{
+      //biometric auth
       final authenticatedLocally = await LocalAuthService().authenticateLocally();
       return authenticatedLocally;
     }
@@ -68,13 +77,16 @@ class AuthService {
 
   Future<bool> login() async {
     final AuthorizationTokenRequest authorizationTokenRequest;
-    print("uei ${dotenv.get("GOOGLE_REDIRECT_URI")}");
 
     try {
+      final client_id = await SecureStorage().getAndroidGoogleClientId() ?? "";
+      final redirect_uri = await SecureStorage().getGooglRedirectUri() ?? "";
+      final issuer = await SecureStorage().getGoogleIssuer() ?? "";
+
       authorizationTokenRequest = AuthorizationTokenRequest(
-          dotenv.get("CLIENT_ID"),
-          dotenv.get("GOOGLE_REDIRECT_URI"),
-          issuer: dotenv.get("GOOGLE_ISSUER"),
+          client_id,
+          redirect_uri,
+          issuer: issuer,
           scopes: ['email', 'profile'],
         );
       // Requesting the auth token and waiting for the response
@@ -88,6 +100,7 @@ class AuthService {
       if (handled){
         final idToken = await SecureStorage().getIdToken();
         if(idToken!=null){
+          //send idtoken to backend and save the user from backend
           final userSavedResponse = await addUserUsingIdToken(idToken);
           final userDetails = jsonDecode(userSavedResponse.body);
           print(userDetails);
@@ -110,6 +123,7 @@ class AuthService {
   }
 
   Future<bool> _handleAuthResult(result) async {
+    //write the tokens to safe storage
     final bool isValidResult =
         result != null && result.accessToken != null && result.idToken != null;
     print("result ${result.idToken}");
@@ -163,6 +177,7 @@ class AuthService {
   }
 
   Future<bool> loginUsingGooglePackage() async {
+    // this is only an experiment: another way to sign in usign gogole
     GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
     AuthCredential credential = GoogleAuthProvider.credential(accessToken: googleAuth?.accessToken, idToken: googleAuth?.idToken);

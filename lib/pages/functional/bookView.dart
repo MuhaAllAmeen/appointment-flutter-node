@@ -50,6 +50,7 @@ class _BookViewState extends State<BookView> {
   }
 
   Future<void> onBookPressed(BuildContext context) async {
+    //validate all the form fields
     if (_formKey.currentState!.validate()){
       isLoading = true;
       BookingModel booking = BookingModel(service: serviceController.text, date: selectedDate, time: selectedTime, location: addressController.text, 
@@ -72,9 +73,10 @@ class _BookViewState extends State<BookView> {
       }catch(e){
         await showGenericDialog(context: context, title: "Error", content: "There was something wrong", optionBuilder:() => {"OK":null},);
       }
-      
       isLoading = false;
+
     }else{
+      //if form field is not valid
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("The details you have entered is not valid"))
         );
@@ -102,8 +104,8 @@ class _BookViewState extends State<BookView> {
               if (loggedOut) Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder:(context) => Home(isLoggedIn: false,),), (Route)=>false); 
             }
           },
-          itemBuilder:(context) {
-          
+
+          itemBuilder:(context) {   
           return <PopupMenuEntry>[
             const PopupMenuItem(
               value: "Logout",
@@ -137,6 +139,7 @@ class _BookViewState extends State<BookView> {
                       if (value.length<2 || value.length>40){
                         return "Invalid name length";
                       }
+                      //regex to check if name has any special characters or consecutive spaces
                       final RegExp nameRegExp = RegExp(r'^(?!.*<[^>]+>)(?!.*\s{2,})[A-Za-z]+(?:\s[A-Za-z]+)*$');
                       if (!nameRegExp.hasMatch(value)){
                         return "Invalid Name Format";
@@ -157,6 +160,7 @@ class _BookViewState extends State<BookView> {
                       if (value == null || value.isEmpty){
                         return "Input Your Email";
                       }
+                      //regex to check email is valid
                       final RegExp emailRegExp = RegExp(r'^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$');
                       if (!emailRegExp.hasMatch(value)){
                         return "Invalid Email Format";
@@ -184,10 +188,11 @@ class _BookViewState extends State<BookView> {
                         if (!value.startsWith("05")){
                           return "Your number should start with 05";
                         }
+                        //regex to check if phone number has only numbers
                         final RegExp phoneRegExp = RegExp(r'^(?!\s)(\d+)(?!\s)$');
-                      if (!phoneRegExp.hasMatch(value)){
-                        return "Invalid Phone Format";
-                      }
+                        if (!phoneRegExp.hasMatch(value)){
+                          return "Invalid Phone Format";
+                        }
                         return null;
                       },  
                     )

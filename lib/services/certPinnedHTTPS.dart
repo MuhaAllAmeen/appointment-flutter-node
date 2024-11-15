@@ -1,3 +1,4 @@
+
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -21,7 +22,7 @@ Future<http.Client> getSSLPinningClient() async {
 }
 
 class BaseHttpClient{
-
+  //this creates an https client that is verified by ssl through the certificate of the server domain
   BaseHttpClient._internal();
   static final BaseHttpClient _instance = BaseHttpClient._internal();
 

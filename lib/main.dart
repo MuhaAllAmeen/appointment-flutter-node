@@ -1,20 +1,22 @@
 import 'package:appointment/home.dart';
 import 'package:appointment/services/certPinnedHTTPS.dart';
 import 'package:appointment/services/localAuthService.dart';
-import 'package:appointment/services/tokens.dart';
+import 'package:appointment/services/secureStorageService.dart';
+import 'package:appointment/utils/saveAPIkeys.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:local_auth/local_auth.dart';
 
 
 void main() async{
+  //initalize all the singletons
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp();
   await dotenv.load(fileName: "lib/.env");
   await BaseHttpClient().init();
   SecureStorage().init();
   LocalAuthService().init();
+  await getAPIKeysandSave();
     // await AuthService().logout();
   runApp(const MyApp());
 }
