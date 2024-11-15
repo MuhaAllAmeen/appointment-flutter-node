@@ -5,6 +5,8 @@ The backend server is hosted using an aws ec2 instance and the requests are sent
 Excuse the domain (its the only free one I could get)
 Firebase Database is used to store data.
 ![image](https://github.com/user-attachments/assets/60c5551d-95f4-4f44-a5a2-38c95bb8a795)
+![image](https://github.com/user-attachments/assets/9f35cb60-20df-47c0-8eec-832af93a92a5)
+
 
 
 Working of the app(click on the link if video is not displayed):
