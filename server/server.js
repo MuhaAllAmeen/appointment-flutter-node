@@ -93,8 +93,10 @@ app.post('/booking/add', async (req, res) => {
     const payload = await verifyGoogleIdToken(idToken);
     if (payload!=null){
       console.log(req.body)
+      const userId = payload['sub']
+      
       //add the booking
-      await addDoc(collection(db, 'booking'), req.body);
+      await addDoc(collection(db, 'booking'), { ...req.body, googleId: userId });
       res.status(200).send('booking created successfully');
     }else{
       res.status(400).send("payload is null")
@@ -114,6 +116,7 @@ app.get('/booking/all',async(req,res) =>{
   try{
     const payload = await verifyGoogleIdToken(idToken);
     if (payload!=null){
+      const userId = payload['sub']
       const bookings = await getDocs(collection(db, 'booking'));
       const bookingArray = [];
 
@@ -122,8 +125,10 @@ app.get('/booking/all',async(req,res) =>{
       } else {
         bookings.forEach((doc) => {
           const booking = doc.data();
-          booking['id'] = doc.id;
-          bookingArray.push(booking);
+          if (booking['googleId'] == userId){
+            booking['id'] = doc.id;
+            bookingArray.push(booking);
+          }    
         });
 
         res.status(200).send(bookingArray);
