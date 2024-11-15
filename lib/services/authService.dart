@@ -22,7 +22,6 @@ class AuthService {
   Future<bool> initAuth() async {
     final storedRefreshToken = await SecureStorage().getRefreshToken();
     final TokenResponse? result;
-    print("refresh $storedRefreshToken");
 
     if (storedRefreshToken == null) {
       //if no refresh token then user has to log in
@@ -58,7 +57,6 @@ class AuthService {
             refreshToken: storedRefreshToken,
           ),
         );
-        print("result ${result.toString()}");
 
         final bool setResult = await _handleAuthResult(result);
         return setResult;
@@ -94,7 +92,6 @@ class AuthService {
           await _appAuth.authorizeAndExchangeCode(
         authorizationTokenRequest,
       );
-      print(result?.accessToken);
       // Taking the obtained result and processing it
       final handled = await _handleAuthResult(result);
       if (handled){
@@ -103,7 +100,6 @@ class AuthService {
           //send idtoken to backend and save the user from backend
           final userSavedResponse = await addUserUsingIdToken(idToken);
           final userDetails = jsonDecode(userSavedResponse.body);
-          print(userDetails);
           SecureStorage().writeExpiryTime(userDetails["expiryTime"]);
         } 
       }
@@ -126,15 +122,7 @@ class AuthService {
     //write the tokens to safe storage
     final bool isValidResult =
         result != null && result.accessToken != null && result.idToken != null;
-    print("result ${result.idToken}");
-    String tt = result.idToken;
-    while (tt.length > 0) {
-      
-    int initLength = (tt.length >= 500 ? 500 : tt.length);
-    print(tt.substring(0, initLength));
-    int endLength = tt.length;
-    tt = tt.substring(initLength, endLength);
-}
+
     if (isValidResult) {
       // Storing refresh token to renew login on app restart
       if (result.refreshToken != null) {
@@ -146,30 +134,10 @@ class AuthService {
       }
 
       final String googleAccessToken = result.accessToken;
-      print("access $googleAccessToken");
       if (googleAccessToken != null) {
         await SecureStorage().writeAccessToken(googleAccessToken);
       }
-
-      // Send request to backend with access token
-      // final url = Uri.https(
-      //   'api.your-server.com',
-      //   '/v1/social-authentication',
-      //   {
-      //     'access_token': googleAccessToken,
-      //   },
-      // );
-      // final response = await http.get(url);
-      // final backendToken = response.token
-
-      // Let's assume it has been successful and a valid token has been returned
-      // const String backendToken = 'TOKEN';
-      // if (backendToken != null) {
-      //   await _secureStorage.write(
-      //     key: "backend_token",
-      //     value: backendToken,
-      //   );
-      // }
+      
       return true;
     } else {
       return false;

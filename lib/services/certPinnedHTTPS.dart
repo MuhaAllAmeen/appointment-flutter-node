@@ -9,11 +9,9 @@ import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 
 Future<SecurityContext> get globalContext async {
-  final sslCertfromlib = await rootBundle.load('lib/certi.pem');
+  // final sslCertfromlib = await rootBundle.load('lib/certi.pem');
   final base64Cert = await SecureStorage().getCert();
   Int8List sslCert = Int8List.fromList(base64Decode(base64Cert!));
-  print(sslCert);
-  print("ss ${sslCertfromlib.buffer.asInt8List()}");
   SecurityContext securityContext = SecurityContext(withTrustedRoots: false);
   securityContext.setTrustedCertificatesBytes(sslCert);
   return securityContext;

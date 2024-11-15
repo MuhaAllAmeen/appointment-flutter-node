@@ -17,7 +17,6 @@ class _AppointmentsviewState extends State<Appointmentsview> {
   List appointments = [];
 
   void onDeletePressed(String? id) async {
-    print("ss $id");
     if (id!=null){
       try{
         Response response = await deleteAppointment(id);

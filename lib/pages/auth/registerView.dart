@@ -21,10 +21,11 @@ class _RegisterviewState extends State<Registerview> {
     final authSuccess = await AuthService.instance.login();
     // final authSuccess = await AuthService.instance.loginUsingGooglePackage();
     print("authSuccess $authSuccess");
-    if (authSuccess){
-      setState(() {
+    setState(() {
         isLoading = false;
       });
+    if (authSuccess){
+      
       // if true, then go back to homepage with isLoggedIn as true so that we can go to the booking page
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder:(context) => Home(isLoggedIn: authSuccess,),), (Route)=>false);
     }
