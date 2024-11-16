@@ -28,7 +28,7 @@ Future<void> sendPrivateKeyToServer(RSAPrivateKey privateKey) async {
   await SecureStorage().writeJWTPrivateKey(privateKeyPem);
   // Send the private key to the server
   final response = await http.post(
-    Uri.parse('http://192.168.0.144:3000/save-key'),
+    Uri.parse('https://appointment.crabdance.com/save-key'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({'privateKey': privateKeyPem}),
   );
