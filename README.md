@@ -22,6 +22,8 @@ Google OAuth, on successful login, will respond with an id token which contains 
 Along with it, it also sends an access and refresh tokens.
 If there is no refresh token or if id token has expired then user has to sign in again.
 All the tokens are safely secured using flutter_secure_storage.
+When the app runs, the api keys are recieved from the server. These inital get requests are authorized using json web tokens.
+the jwt is also verified everytime the the initial get requests are run to check if the jwt has expired or not.
 
  ● SecureStorage of Sensitive Data:
  It is not secure to store the api keys in the client side. So, all the api keys are retrived from the server and stored using flutter_secure_storage.
