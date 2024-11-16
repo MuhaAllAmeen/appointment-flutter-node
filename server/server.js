@@ -11,17 +11,15 @@ import {
     deleteDoc,
   } from 'firebase/firestore';
 import express from 'express';
-import axios from 'axios';
-import qs from "qs"
 import dotenv from "dotenv"
 import fs from "fs"
-import https from "https"
 import { OAuth2Client } from 'google-auth-library';
 import { body, param, validationResult } from 'express-validator';
+import jwt from 'jsonwebtoken';
 
 const app = express();
-app.use(express.json())
-dotenv.config()
+app.use(express.json());
+dotenv.config();
 
 
 const firebaseConfig = {
@@ -199,26 +197,74 @@ app.get('/',(req,res)=>{
 
 app.get('/api/keys',(req,res)=>{
   console.log('/api/keys/')
-  const googleClientId = process.env.GOOGLE_CLIENTID
-  const IOSgoogleClientId = process.env.IOS_CLIENT_ID
-  const googleIssuer = process.env.GOOGLE_ISSUER
-  const redirectURI = process.env.GOOGLE_REDIRECT_URI
-  console.log(googleClientId,IOSgoogleClientId,googleIssuer,redirectURI);
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).send('Unauthorized');
 
-  res.status(200).json({
-    googleClientId,
-    IOSgoogleClientId,
-    googleIssuer,
-    redirectURI,
-  })
+  jwt.verify(token, getPrivateKey(), (err, decoded) => {
+    if (err) {
+      console.log(err)
+      return res.status(401).send('Unauthorized');
+    }else{
+      console.log("verified")
+      const googleClientId = process.env.GOOGLE_CLIENTID
+      const IOSgoogleClientId = process.env.IOS_CLIENT_ID
+      const googleIssuer = process.env.GOOGLE_ISSUER
+      const redirectURI = process.env.GOOGLE_REDIRECT_URI
+      console.log(googleClientId,IOSgoogleClientId,googleIssuer,redirectURI);
+
+      return res.status(200).json({
+        googleClientId,
+        IOSgoogleClientId,
+        googleIssuer,
+        redirectURI,
+      })
+    } // Pass control to the next middleware or route handler
+  });
+  
 })
 
 app.get("/cert",async (req,res)=>{
-  const cert= fs.readFileSync('/etc/ssl/nodecerts/cert.pem')
-  res.status(200).json({
-    cert
-  })
+  console.log("/cert");
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).send('Unauthorized');
+  
+  jwt.verify(token, getPrivateKey(), (err, decoded) => {
+    if (err) {
+      console.log(err)
+      return res.status(401).send('Unauthorized');
+    }else{
+      console.log("verified")
+      // const cert = fs.readFileSync('./certi.pem')
+      const cert= fs.readFileSync('/etc/ssl/nodecerts/cert.pem')
+
+      return res.status(200).json({
+        cert
+      })
+    } // Pass control to the next middleware or route handler
+  });
+  
 })
+
+app.post('/save-key', (req, res) => {
+  console.log('/save-key');
+  try{
+    const { privateKey } = req.body;
+      if (!privateKey) {
+        return res.status(400).send('Private key is missing');
+      }
+
+      // Save the private key securely (use a better method for production)
+      const filePath = './privateKey.pem';
+      fs.writeFileSync(filePath, privateKey, { encoding: 'utf8', mode: 0o600 });
+      
+      res.status(200).send('Private key saved successfully');
+  }catch(e){
+    console.log(e)
+  }
+ 
+});
+
+
 
 app.listen(3000, () => {
   console.log('Server started on port 3000');
@@ -242,4 +288,11 @@ async function verifyGoogleIdToken(idToken){
     // throw error;
   }
   
+}
+
+function getPrivateKey(){
+  const privateKey = fs.readFileSync('./privateKey.pem', 'utf8');
+
+  // console.log(privateKey)
+  return privateKey;
 }

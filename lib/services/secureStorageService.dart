@@ -56,6 +56,15 @@ class SecureStorage{
       return cert;
     }
 
+    Future<String?> getJWT() async{
+      final jwt = await _secureStorage.read(key: "jwt");
+      return jwt;
+    }
+
+    Future<String?> getJWTPrivateKey() async{
+      final privateKey = await _secureStorage.read(key: "jwt_private_key");
+      return privateKey;
+    }
 
     Future<void> writeAccessToken(String token) async{
       await _secureStorage.write(key: "access_token",value: token);
@@ -94,11 +103,24 @@ class SecureStorage{
       await _secureStorage.write(key: "cert", value: cert);
     }
 
+    Future<void> writeJWT(String jwt) async{
+      await _secureStorage.write(key: "jwt", value: jwt);
+    }
+
+    Future<void> writeJWTPrivateKey(String privateKey) async{
+      await _secureStorage.write(key: "jwt_private_key", value: privateKey);
+    }
+
     Future<void> clearTokens() async{
       await _secureStorage.delete(key: "access_token");
       await _secureStorage.delete(key: "refresh_token");
       await _secureStorage.delete(key: "id_token");
       await _secureStorage.delete(key: "expiry_time");
+    }
+
+    Future<void> clearJWT() async{
+      await _secureStorage.delete(key: "jwt");
+      await _secureStorage.delete(key: "jwt_private_key");
     }
 
 }

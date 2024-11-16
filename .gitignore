@@ -47,3 +47,5 @@ server/.env
 lib/.env
 lib/certi.pem
 lib/certificate.pem
+server/certi.pem
+server/privateKey.pem

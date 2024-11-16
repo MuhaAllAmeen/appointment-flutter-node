@@ -1,5 +1,6 @@
 import 'package:appointment/home.dart';
 import 'package:appointment/services/certPinnedHTTPS.dart';
+import 'package:appointment/services/initKeys.dart';
 import 'package:appointment/services/localAuthService.dart';
 import 'package:appointment/services/secureStorageService.dart';
 import 'package:appointment/utils/saveAPIkeys.dart';
@@ -14,6 +15,7 @@ void main() async{
   Firebase.initializeApp();
   // await dotenv.load(fileName: "lib/.env");
   SecureStorage().init();
+  await initKeys();
   await getCertFromServer();
   await BaseHttpClient().init();
   LocalAuthService().init();

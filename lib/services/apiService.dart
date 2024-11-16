@@ -1,5 +1,7 @@
 import 'package:appointment/services/certPinnedHTTPS.dart';
+import 'package:appointment/services/initKeys.dart';
 import 'package:appointment/services/secureStorageService.dart';
+import 'package:appointment/utils/createPrivateKey.dart';
 import 'package:http/http.dart' as http;
 
 class Apiservice{
@@ -10,6 +12,7 @@ class Apiservice{
     //all routes are verified using the google ouath id token since they contain the necessary info
     Future<http.Response> fetchData(String url) async {
       final idToken = await SecureStorage().getIdToken();
+      print('id $idToken');
       try{
         final response = await _client.get(Uri.parse(baseurl+url),
           headers: {'Authorization': 'Bearer $idToken'});
@@ -58,6 +61,35 @@ class Apiservice{
       }catch(e){
         rethrow;
       }   
+    }  
+}
+Future<http.Response> fetchDataUsingJWT(String url) async {
+  final String baseurl = "https://appointment.crabdance.com";
+  try{
+    final jwt = await SecureStorage().getJWT();
+    final jwtPrivatKey = await SecureStorage().getJWTPrivateKey();
+    final verified = await checkJWT(jwtPrivatKey!);
+    if (verified){
+      final response = await http.get(Uri.parse(baseurl+url),
+      headers: {"Authorization":"Bearer $jwt"}
+      );
+      if (response.statusCode == 200){
+        return response;
+      } else {
+        throw Exception("There was an error fetching data");
+      }
+    }else{
+      throw Exception("jwt exception");
+      
     }
-  
+    
+  }catch(e){
+    print(e);
+    if (e.toString() == "jwt exception"){
+      await SecureStorage().clearJWT();
+      await initKeys();
+      return await fetchDataUsingJWT(url);
+    }
+    rethrow;
+  }
 }

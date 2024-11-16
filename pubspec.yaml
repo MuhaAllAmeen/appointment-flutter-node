@@ -44,6 +44,9 @@ dependencies:
   firebase_auth: ^5.3.3
   google_sign_in: ^6.2.2
   local_auth: ^2.3.0
+  crypto: ^3.0.6
+  pointycastle: ^3.9.1
+  dart_jsonwebtoken: ^2.14.1
 
 dev_dependencies:
   flutter_test:
